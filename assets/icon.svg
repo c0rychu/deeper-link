@@ -1,10 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <!-- Deeper Link mark: a "d" made of a circle linked to a bar; their overlap (the link) is the deepest tone.
-       Circle r=34 and bar (width 52) share the baseline y=118. Source of truth for every platform's icons. -->
+       Drawn on round numbers: circle r=34 and bar (width 52) share the baseline y=118.
+       The transform scales it to .9 and shifts it half-way from box-centring to centring its visual weight
+       (area centroid (71,71), pulled right/down by the tall bar), 2 units above centre: optical centring.
+       The result is ~96px tall, so this file also meets the store's 96px-art-in-128px icon guideline.
+       Small sizes use the pixel-grid version in icon-16.svg. Source of truth for every platform's icons. -->
   <defs>
     <clipPath id="bar"><rect x="60" y="10" width="52" height="108" rx="26"/></clipPath>
   </defs>
-  <circle cx="50" cy="84" r="34" fill="#38BDF8"/>
-  <rect x="60" y="10" width="52" height="108" rx="26" fill="#2563EB"/>
-  <circle cx="50" cy="84" r="34" fill="#172554" clip-path="url(#bar)"/>
+  <g transform="translate(3.25 2.25) scale(.9)">
+    <circle cx="50" cy="84" r="34" fill="#FFD60A"/>
+    <rect x="60" y="10" width="52" height="108" rx="26" fill="#FF2600"/>
+    <circle cx="50" cy="84" r="34" fill="#8A1C00" clip-path="url(#bar)"/>
+  </g>
 </svg>

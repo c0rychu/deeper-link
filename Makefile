@@ -44,24 +44,23 @@ package: check build-chrome ## Zip the Chrome extension for the Web Store upload
 	@echo "package: dist/deeper-link-chrome-$(VERSION).zip"
 
 # PNGs are committed, so building never needs this; rerun only after editing an SVG source.
-# macOS: renders with headless Chrome, then downsizes with sips.
-#   16/48: full-bleed, for the toolbar.
-#   128: 96px artwork + 16px transparent padding, per Chrome Web Store icon guidelines
-#        (the mark is 108 tall, so a 144-unit viewBox scales it to 96px).
+# macOS: renders each SVG at 512px with headless Chrome, then downsizes with sips.
+#   16/32: assets/icon-16.svg, drawn on the pixel grid (512 = 32 x 16, so its edges stay sharp).
+#   48/128: assets/icon.svg, whose ~96px mark in 128 matches the store's icon padding guideline.
+#   Promo tile: the store requires exactly 440x280 (no 2x), so render at 4x and downsample for smoother edges.
 CHROME ?= /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 RENDER = "$(CHROME)" --headless --disable-gpu --hide-scrollbars --default-background-color=00000000
 ICONS = ts/chrome-extension/icons
 images: ## Re-render icons and store images from their SVG sources
 	@tmp=$$(mktemp -d) && \
-	$(RENDER) --window-size=512,512 --screenshot=$$tmp/full.png "file://$(CURDIR)/assets/icon.svg" 2>/dev/null && \
-	sed 's/viewBox="0 0 128 128"/viewBox="-8 -8 144 144"/' assets/icon.svg > $$tmp/padded.svg && \
-	$(RENDER) --window-size=512,512 --screenshot=$$tmp/padded.png "file://$$tmp/padded.svg" 2>/dev/null && \
-	sips -z 16 16 $$tmp/full.png --out $(ICONS)/16.png >/dev/null && \
-	sips -z 48 48 $$tmp/full.png --out $(ICONS)/48.png >/dev/null && \
-	sips -z 128 128 $$tmp/padded.png --out $(ICONS)/128.png >/dev/null && \
-	$(RENDER) --window-size=440,280 --screenshot=store/chrome/images/promo-small-440x280.png \
+	$(RENDER) --window-size=512,512 --screenshot=$$tmp/small.png "file://$(CURDIR)/assets/icon-16.svg" 2>/dev/null && \
+	$(RENDER) --window-size=512,512 --screenshot=$$tmp/large.png "file://$(CURDIR)/assets/icon.svg" 2>/dev/null && \
+	for s in 16 32; do sips -z $$s $$s $$tmp/small.png --out $(ICONS)/$$s.png >/dev/null; done && \
+	for s in 48 128; do sips -z $$s $$s $$tmp/large.png --out $(ICONS)/$$s.png >/dev/null; done && \
+	$(RENDER) --window-size=440,280 --force-device-scale-factor=4 --screenshot=$$tmp/promo.png \
 		"file://$(CURDIR)/store/chrome/promo-small.svg" 2>/dev/null && \
-	rm -rf $$tmp && echo "images: $(ICONS)/{16,48,128}.png store/chrome/images/promo-small-440x280.png"
+	sips -z 280 440 $$tmp/promo.png --out store/chrome/images/promo-small-440x280.png >/dev/null && \
+	rm -rf $$tmp && echo "images: $(ICONS)/{16,32,48,128}.png store/chrome/images/promo-small-440x280.png"
 
 clean: ## Remove build output
 	rm -rf dist/*  # keep dist itself: it may be a symlink

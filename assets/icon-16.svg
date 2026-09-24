@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- icon.svg redrawn on the 16px grid, for 16px and 32px (2x) toolbar icons. Scaling the large mark down puts
+       the bar's straight edges between pixels, which blurs them and makes the mark look lopsided.
+       Bar: x 7..13 (6px, edges on pixel lines), y 1..14. Circle: 8px across on the same baseline, overlapping
+       the bar by 3px. The box sits .5px left/up of centre, matching icon.svg's optical centring. -->
+  <defs>
+    <clipPath id="bar"><rect x="7" y="1" width="6" height="13" rx="3"/></clipPath>
+  </defs>
+  <circle cx="6" cy="10" r="4" fill="#FFD60A"/>
+  <rect x="7" y="1" width="6" height="13" rx="3" fill="#FF2600"/>
+  <circle cx="6" cy="10" r="4" fill="#8A1C00" clip-path="url(#bar)"/>
+</svg>

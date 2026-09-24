@@ -3,14 +3,14 @@
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#EAF2FF"/>
+      <stop offset="1" stop-color="#FFF3E0"/>
     </linearGradient>
   </defs>
   <rect width="440" height="280" fill="url(#bg)"/>
-  <image href="../../assets/icon.svg" x="49" y="80" width="120" height="120"/>
+  <image href="../../assets/icon.svg" x="42" y="72" width="136" height="136"/>
   <g font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif">
-    <text x="181" y="134" font-size="36" font-weight="700" fill="#0F172A" letter-spacing="-0.8">Deeper Link</text>
-    <text x="183" y="163" font-size="15" fill="#475569">Gmail links that always open</text>
-    <text x="183" y="184" font-size="15" fill="#475569">the right account.</text>
+    <text x="181" y="134" font-size="36" font-weight="700" fill="#1C1917" letter-spacing="-0.8">Deeper Link</text>
+    <text x="183" y="163" font-size="15" fill="#57534E">Gmail links that always open</text>
+    <text x="183" y="184" font-size="15" fill="#57534E">the right account.</text>
   </g>
 </svg>
