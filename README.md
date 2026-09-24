@@ -1,3 +1,5 @@
+<img src="assets/mark.svg" height="80" alt="Deeper Link logo">
+
 # Deeper Link
 
 Copy links that stay stable no matter which order you signed into your accounts.
@@ -40,7 +42,7 @@ One repo for every language: project manifests at the root, sources in per-langu
 ```
 Makefile, package.json, tsconfig.json   # (later: pyproject.toml, Cargo.toml)
 spec/                  language-neutral rules + shared test fixtures
-assets/                logo sources for every platform: icon.svg + pixel-grid icon-16.svg (`make images` renders the PNGs)
+assets/                logo sources for every platform: icon.svg + pixel-grid icon-16.svg (`make images` renders the PNGs and mark.svg)
 ts/core/               platform-free TypeScript: Service interface, registry, services/
 ts/chrome-extension/   Chrome MV3 glue only (toolbar, context menu, clipboard)
 store/chrome/          Chrome Web Store listing text (listing.md), images, and screenshot sources
