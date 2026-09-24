@@ -1,7 +1,7 @@
 // Bundles the Chrome extension into dist/chrome-extension/, ready for "Load unpacked".
 
 import { build } from "esbuild";
-import { cp, rm } from "node:fs/promises";
+import { cp, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const here = (path) => fileURLToPath(new URL(path, import.meta.url));
@@ -20,8 +20,12 @@ await build({
   logLevel: "info",
 });
 
+// package.json is the single source of the version; the store requires it to increase on every upload.
+const { version } = JSON.parse(await readFile(`${root}package.json`, "utf8"));
+const manifest = JSON.parse(await readFile(here("manifest.json"), "utf8"));
+
 await Promise.all([
-  cp(here("manifest.json"), `${outdir}/manifest.json`),
+  writeFile(`${outdir}/manifest.json`, JSON.stringify({ ...manifest, version }, null, 2) + "\n"),
   cp(here("src/offscreen.html"), `${outdir}/offscreen.html`),
   cp(here("icons"), `${outdir}/icons`, { recursive: true }),
 ]);

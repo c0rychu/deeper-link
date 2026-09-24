@@ -26,6 +26,7 @@ ln -s ~/somewhere/outside/dropbox/node_modules node_modules
 make install
 make check          # typecheck + tests
 make build          # → dist/chrome-extension/
+make package        # → dist/deeper-link-chrome-<version>.zip for the Web Store (version from package.json)
 ```
 
 Then in Chrome: `chrome://extensions` → Developer mode → *Load unpacked* → `dist/chrome-extension`.
@@ -39,9 +40,11 @@ One repo for every language: project manifests at the root, sources in per-langu
 ```
 Makefile, package.json, tsconfig.json   # (later: pyproject.toml, Cargo.toml)
 spec/                  language-neutral rules + shared test fixtures
-assets/icon.svg        the logo, source for every platform's icons (`make icons` renders Chrome's PNGs)
+assets/icon.svg        the logo, source for every platform's icons (`make images` renders the PNGs)
 ts/core/               platform-free TypeScript: Service interface, registry, services/
 ts/chrome-extension/   Chrome MV3 glue only (toolbar, context menu, clipboard)
+store/chrome/          Chrome Web Store listing text (listing.md) + promo images
+PRIVACY.md             privacy policy (linked from the store)
 ```
 
 ### Adding things

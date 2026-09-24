@@ -34,7 +34,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 /** `pageTitle` must only be given when `url` is the open page; it's how Gmail reveals the account's email. */
 async function copyDeeperLink(url: string | undefined, pageTitle: string | undefined, tabId?: number) {
   try {
-    if (!url) throw new Error("This tab has no URL");
+    // Without a host permission for the page, Chrome hides its URL: it is not a Gmail page.
+    if (!url) throw new Error("Deeper Link works on Gmail pages only");
     const ctx: ResolveContext = {
       fetch: (feedUrl) => fetch(feedUrl, { credentials: "include" }),
       pageTitle,
