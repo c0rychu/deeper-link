@@ -48,6 +48,7 @@ package: check build-chrome ## Zip the Chrome extension for the Web Store upload
 #   16/32: assets/icon-16.svg, drawn on the pixel grid (512 = 32 x 16, so its edges stay sharp).
 #   48/128: assets/icon.svg, whose ~96px mark in 128 matches the store's icon padding guideline.
 #   Promo tile: the store requires exactly 440x280 (no 2x), so render at 4x and downsample for smoother edges.
+#   Screenshot: store/chrome/screenshots/context-menu.html at 2x (the menu capture's scale) → exactly 1280x800.
 CHROME ?= /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 RENDER = "$(CHROME)" --headless --disable-gpu --hide-scrollbars --default-background-color=00000000
 ICONS = ts/chrome-extension/icons
@@ -60,7 +61,10 @@ images: ## Re-render icons and store images from their SVG sources
 	$(RENDER) --window-size=440,280 --force-device-scale-factor=4 --screenshot=$$tmp/promo.png \
 		"file://$(CURDIR)/store/chrome/promo-small.svg" 2>/dev/null && \
 	sips -z 280 440 $$tmp/promo.png --out store/chrome/images/promo-small-440x280.png >/dev/null && \
-	rm -rf $$tmp && echo "images: $(ICONS)/{16,32,48,128}.png store/chrome/images/promo-small-440x280.png"
+	$(RENDER) --window-size=1280,800 --force-device-scale-factor=2 --screenshot=$$tmp/shot.png \
+		"file://$(CURDIR)/store/chrome/screenshots/context-menu.html" 2>/dev/null && \
+	sips -z 800 1280 $$tmp/shot.png --out store/chrome/images/screenshot-1-context-menu-1280x800.png >/dev/null && \
+	rm -rf $$tmp && echo "images: $(ICONS)/{16,32,48,128}.png store/chrome/images/{promo-small,screenshot-1}*.png"
 
 clean: ## Remove build output
 	rm -rf dist/*  # keep dist itself: it may be a symlink

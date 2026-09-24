@@ -45,7 +45,7 @@ Everything happens in your browser. No data is sent to the developer or anyone e
 |---|---|
 | Store icon (128×128) | `ts/chrome-extension/icons/128.png` |
 | Small promo tile (440×280) | `store/chrome/images/promo-small-440x280.png` |
-| Screenshots (1280×800, 1–5) | take yourself; see below |
+| Screenshots (1280×800, 1–5) | `store/chrome/images/screenshot-1-context-menu-1280x800.png` (source: `store/chrome/screenshots/`) |
 | Marquee (1400×560) | optional, skipped |
 
 Screenshot ideas (blur real email addresses and subjects):
