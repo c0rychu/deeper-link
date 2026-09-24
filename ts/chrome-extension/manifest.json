@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Deeper Link",
+  "version": "0.1.0",
+  "description": "Copy stable links that don't depend on account login order (Gmail /u/0/ → ?authuser=you@gmail.com).",
+  "minimum_chrome_version": "116",
+  "permissions": ["activeTab", "clipboardWrite", "contextMenus", "offscreen"],
+  "host_permissions": ["https://mail.google.com/*"],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_title": "Copy Deeper Link",
+    "default_icon": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" }
+  },
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" }
+}

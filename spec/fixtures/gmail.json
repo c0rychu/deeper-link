@@ -1,0 +1,82 @@
+{
+  "$comment": "Each case: `url`, optional `pageTitle`, optional `feeds` (account index -> atom feed HTTP response; any other feed request is a 404), and either `expected` or `error` (a substring of the error message).",
+  "cases": [
+    {
+      "name": "page title resolves the account",
+      "url": "https://mail.google.com/mail/u/1/#inbox/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv",
+      "pageTitle": "Quarterly report - alice@example.com - Gmail",
+      "expected": "https://mail.google.com/mail/u/?authuser=alice@example.com#inbox/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv"
+    },
+    {
+      "name": "email inside the subject is ignored",
+      "url": "https://mail.google.com/mail/u/1/#inbox/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv",
+      "pageTitle": "Fwd: note from bob@example.org - alice@example.com - Gmail",
+      "expected": "https://mail.google.com/mail/u/?authuser=alice@example.com#inbox/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv"
+    },
+    {
+      "name": "Workspace title with a custom product name",
+      "url": "https://mail.google.com/mail/u/2/#inbox",
+      "pageTitle": "Inbox (3) - carol@example.net - Company Mail",
+      "expected": "https://mail.google.com/mail/u/?authuser=carol@example.net#inbox"
+    },
+    {
+      "name": "atom feed resolves the account when there is no page title",
+      "url": "https://mail.google.com/mail/u/2/#label/Work/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv",
+      "feeds": {
+        "2": { "status": 200, "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed version=\"0.3\" xmlns=\"http://purl.org/atom/ns#\"><title>Gmail - Inbox for dave@example.com</title><tagline>New messages in your Gmail Inbox</tagline><fullcount>0</fullcount></feed>" }
+      },
+      "expected": "https://mail.google.com/mail/u/?authuser=dave@example.com#label/Work/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv"
+    },
+    {
+      "name": "title without an email falls back to the atom feed",
+      "url": "https://mail.google.com/mail/u/2/#inbox",
+      "pageTitle": "Gmail",
+      "feeds": {
+        "2": { "status": 200, "body": "<feed><title>Gmail - Inbox for dave@example.com</title></feed>" }
+      },
+      "expected": "https://mail.google.com/mail/u/?authuser=dave@example.com#inbox"
+    },
+    {
+      "name": "no /u/N segment means account 0",
+      "url": "https://mail.google.com/mail/#inbox",
+      "feeds": {
+        "0": { "status": 200, "body": "<feed><title>Gmail - Inbox for erin@example.com</title></feed>" }
+      },
+      "expected": "https://mail.google.com/mail/u/?authuser=erin@example.com#inbox"
+    },
+    {
+      "name": "already stable URL is returned unchanged",
+      "url": "https://mail.google.com/mail/u/?authuser=alice@example.com#inbox/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv",
+      "expected": "https://mail.google.com/mail/u/?authuser=alice@example.com#inbox/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv"
+    },
+    {
+      "name": "plus in the email is percent-encoded",
+      "url": "https://mail.google.com/mail/u/0/#inbox",
+      "pageTitle": "Inbox - frank+work@example.com - Gmail",
+      "expected": "https://mail.google.com/mail/u/?authuser=frank%2Bwork@example.com#inbox"
+    },
+    {
+      "name": "other query parameters are kept after authuser",
+      "url": "https://mail.google.com/mail/u/0/?pli=1#inbox",
+      "pageTitle": "Inbox - alice@example.com - Gmail",
+      "expected": "https://mail.google.com/mail/u/?authuser=alice@example.com&pli=1#inbox"
+    },
+    {
+      "name": "signed-out account index is reported",
+      "url": "https://mail.google.com/mail/u/5/#inbox",
+      "feeds": { "5": { "status": 401, "body": "Unauthorized" } },
+      "error": "No Gmail account is signed in at /u/5/"
+    },
+    {
+      "name": "feed without an email is reported",
+      "url": "https://mail.google.com/mail/u/0/#inbox",
+      "feeds": { "0": { "status": 200, "body": "<html><title>Sign in - Google Accounts</title></html>" } },
+      "error": "Could not find the email of Gmail account /u/0/"
+    },
+    {
+      "name": "non-Gmail URL is rejected",
+      "url": "https://example.com/mail/u/0/#inbox",
+      "error": "Unsupported URL"
+    }
+  ]
+}

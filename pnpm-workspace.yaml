@@ -1,0 +1,10 @@
+# pnpm settings (single package; no `packages:` list needed yet).
+
+# node_modules is a symlink to a dir outside Dropbox. pnpm refuses to hoist
+# into a symlinked dir ("workspace hoist directory is not a real directory"),
+# so disable hoisting; every package still sees its own declared deps.
+hoist: false
+
+# esbuild's postinstall verifies its platform binary; pnpm blocks install scripts unless allowed.
+allowBuilds:
+  esbuild: true
