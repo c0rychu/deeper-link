@@ -1,6 +1,6 @@
 // Chrome glue: turns clicks into core.deepen() calls and puts the result on the clipboard.
 
-import { deepen, type ResolveContext } from "@deeper-link/core";
+import { accountNumber, deepen, type ResolveContext } from "@deeper-link/core";
 
 const MENU_PAGE = "copy-page";
 const MENU_LINK = "copy-link";
@@ -44,6 +44,7 @@ async function copyDeeperLink(url: string | undefined, tab: chrome.tabs.Tab | un
     const page = isOpenPage && tabId !== undefined;
     const ctx: ResolveContext = {
       fetch: (feedUrl) => fetch(feedUrl, { credentials: "include" }),
+      isOpenPage: page,
       pageTitle: page ? tab?.title : undefined,
       pageAccountLabel: page ? await readAccountLabel(tabId) : undefined,
       findAccountLabel,
@@ -74,11 +75,10 @@ async function readAccountLabel(tabId: number): Promise<string | undefined> {
   }
 }
 
-/** Account-button label from any open Gmail/Drive/Docs tab whose URL names account `index` (/u/N/ or authuser=N). */
+/** Account-button label from any open Gmail/Drive/Docs tab whose URL means account `index` (same rules as links). */
 async function findAccountLabel(index: number): Promise<string | undefined> {
-  const namesAccount = new RegExp(`/u/${index}(?=[/?#]|$)|[?&]authuser=${index}(?=[&#]|$)`);
   for (const tab of await chrome.tabs.query({ url: GOOGLE })) {
-    if (tab.id === undefined || !tab.url || !namesAccount.test(tab.url)) continue;
+    if (tab.id === undefined || !tab.url || accountNumber(new URL(tab.url)) !== index) continue;
     const label = await readAccountLabel(tab.id);
     if (label) return label;
   }

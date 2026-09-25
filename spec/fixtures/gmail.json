@@ -1,5 +1,5 @@
 {
-  "$comment": "Each case: `url`, optional `pageTitle` and `pageAccountLabel` (only for the open page), optional `feeds` (account number -> Gmail atom feed HTTP response; any other feed request is a 404), optional `openTabLabels` (account number -> account-button label of another open tab), and either `expected` or `error` (a substring of the error message).",
+  "$comment": "Each case: `url`, optional `isOpenPage` (the URL is the page currently open) with its `pageTitle` and `pageAccountLabel`, optional `feeds` (account number -> Gmail atom feed HTTP response; any other feed request is a 404), optional `openTabLabels` (account number -> account-button label of another open tab), optional `openTabLookupFails` (the open-tab lookup itself throws), and either `expected` or `error` (a substring of the error message).",
   "cases": [
     {
       "name": "page title resolves the account",
@@ -104,6 +104,18 @@
       "expected": "https://mail.google.com/mail/u/?authuser=ming@example.com#inbox"
     },
     {
+      "name": "hand-written authuser email with a raw + is left alone",
+      "url": "https://mail.google.com/mail/u/?authuser=frank+work@example.com#inbox",
+      "expected": "https://mail.google.com/mail/u/?authuser=frank+work@example.com#inbox"
+    },
+    {
+      "name": "account label with text after the email (Google One: \", Google membership\")",
+      "url": "https://mail.google.com/mail/u/1/#inbox",
+      "isOpenPage": true,
+      "pageAccountLabel": "Google Account: Alice Example  \n(alice@example.com), Google membership",
+      "expected": "https://mail.google.com/mail/u/?authuser=alice@example.com#inbox"
+    },
+    {
       "name": "signed-out account index is reported",
       "url": "https://mail.google.com/mail/u/5/#inbox",
       "feeds": {
@@ -112,7 +124,7 @@
           "body": "Unauthorized"
         }
       },
-      "error": "No Gmail account is signed in at /u/5/"
+      "error": "Couldn't identify Google account /u/5/ (no Gmail account is signed in there)"
     },
     {
       "name": "feed without an email is reported",
@@ -123,12 +135,17 @@
           "body": "<html><title>Sign in - Google Accounts</title></html>"
         }
       },
-      "error": "Could not find the email of Gmail account /u/0/"
+      "error": "Couldn't identify Google account /u/0/"
     },
     {
       "name": "non-Gmail URL is rejected",
       "url": "https://example.com/mail/u/0/#inbox",
       "error": "Unsupported URL"
+    },
+    {
+      "name": "delegated mailbox is reported as unsupported, not mangled",
+      "url": "https://mail.google.com/mail/b/ABC123/u/0/#inbox",
+      "error": "Delegated mailboxes (/mail/b/…) aren't supported yet"
     }
   ]
 }

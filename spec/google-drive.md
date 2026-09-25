@@ -10,8 +10,9 @@ Drive links carry the sign-in number (`drive.google.com/drive/u/1/folders/…`, 
 
 A URL matches when the host is `drive.google.com` or `docs.google.com`.
 
-1. `authuser` is already an email → return the URL unchanged.
+1. `authuser` is anything but a number → return the URL unchanged.
 2. Find the account per [google-account.md](google-account.md): `authuser=N`, else a `/u/N/` path segment, else the default account `0`. The open page's account button, when available, wins over all of these.
+   **Exception:** an open Drive/Docs page whose URL names no account often runs as a non-default account (the URL doesn't say). If its account button can't be read, report an error: never assume `0`.
 3. Build the result: remove the `/u/N` path segment wherever it appears, then add `authuser=<email>` first in the query.
    - `drive.google.com/drive/u/1/folders/F` → `drive.google.com/drive/folders/F?authuser=me@example.com`
    - `docs.google.com/document/u/1/d/D/edit?tab=t.0#heading=h.1` → `docs.google.com/document/d/D/edit?authuser=me@example.com&tab=t.0#heading=h.1`

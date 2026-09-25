@@ -2,10 +2,13 @@
 export interface ResolveContext {
   /** fetch() that sends the user's cookies for the service's site. */
   fetch(url: string): Promise<Response>;
+  /** The URL being resolved is the page currently open (so `pageTitle` and `pageAccountLabel` describe it). */
+  isOpenPage?: boolean;
   /** Title of the page, set only when the URL being resolved is the page currently open. */
   pageTitle?: string;
   /**
-   * `aria-label` of Google's account button on the open page, e.g. "Google Account: Alice\n(alice@example.com)".
+   * `aria-label` of Google's account button on the open page, e.g. "Google Account: Alice\n(alice@example.com)",
+   * sometimes with more text after it (", Google membership").
    * Set only when the URL being resolved is the page currently open.
    */
   pageAccountLabel?: string;

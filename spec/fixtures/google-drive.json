@@ -73,6 +73,36 @@
       "expected": "https://docs.google.com/document/d/1DocId_xyz/edit?authuser=alice@example.com"
     },
     {
+      "name": "non-numeric authuser is left alone",
+      "url": "https://docs.google.com/document/d/1DocId_xyz/edit?authuser=frank+work@example.com",
+      "expected": "https://docs.google.com/document/d/1DocId_xyz/edit?authuser=frank+work@example.com"
+    },
+    {
+      "name": "open Sheet in the second account, label with text after the email",
+      "url": "https://docs.google.com/spreadsheets/d/1SheetId/edit?gid=0#gid=0",
+      "isOpenPage": true,
+      "pageAccountLabel": "Google Account: Alice Example  \n(alice@example.com), Google membership",
+      "feeds": {
+        "0": {
+          "status": 200,
+          "body": "<feed><title>Gmail - Inbox for first@example.com</title></feed>"
+        }
+      },
+      "expected": "https://docs.google.com/spreadsheets/d/1SheetId/edit?authuser=alice@example.com&gid=0#gid=0"
+    },
+    {
+      "name": "open Doc with /u/N/ but unreadable button still resolves by its number",
+      "url": "https://docs.google.com/document/u/1/d/1DocId_xyz/edit",
+      "isOpenPage": true,
+      "feeds": {
+        "1": {
+          "status": 200,
+          "body": "<feed><title>Gmail - Inbox for dave@example.com</title></feed>"
+        }
+      },
+      "expected": "https://docs.google.com/document/d/1DocId_xyz/edit?authuser=dave@example.com"
+    },
+    {
       "name": "account without Gmail and no open tab for it: explain what to do",
       "url": "https://drive.google.com/drive/u/4/my-drive",
       "feeds": {
@@ -81,12 +111,36 @@
           "body": "<html><title>Gmail is not enabled for this account</title></html>"
         }
       },
-      "error": "open any Gmail, Drive or Docs page for that account"
+      "error": "Open any Gmail, Drive or Docs page for that account"
     },
     {
       "name": "look-alike host is rejected",
       "url": "https://docs.google.com.example.net/document/d/1DocId_xyz/edit",
       "error": "Unsupported URL"
+    },
+    {
+      "name": "a failing open-tab lookup still reports the real reason",
+      "url": "https://drive.google.com/drive/u/3/my-drive",
+      "feeds": {
+        "3": {
+          "status": 200,
+          "body": "<html><title>Gmail is not enabled for this account</title></html>"
+        }
+      },
+      "openTabLookupFails": true,
+      "error": "Couldn't identify Google account /u/3/ (Gmail's feed has no email; Gmail may be off for this account)"
+    },
+    {
+      "name": "open Doc without an account number and an unreadable button: error, never guess account 0",
+      "url": "https://docs.google.com/document/d/1DocId_xyz/edit",
+      "isOpenPage": true,
+      "feeds": {
+        "0": {
+          "status": 200,
+          "body": "<feed><title>Gmail - Inbox for first@example.com</title></feed>"
+        }
+      },
+      "error": "Couldn't tell which Google account this page is using"
     }
   ]
 }

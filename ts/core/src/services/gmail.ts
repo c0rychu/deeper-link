@@ -1,7 +1,7 @@
 // Gmail: /mail/u/N/ (sign-in order) → /mail/u/?authuser=<email>. See spec/gmail.md.
 
-import type { Service } from "../types";
-import { accountEmail, accountNumber, hasEmailAuthuser, isEmail, stableQuery } from "./google-account";
+import { DeeperLinkError, type Service } from "../types";
+import { accountEmail, accountNumber, isEmail, stableQuery } from "./google-account";
 
 const HOST = "mail.google.com";
 const MAIL_PATH = /^\/mail(?:\/u\/\d+)?(?=\/|$)/;
@@ -12,8 +12,11 @@ export const gmail: Service = {
   matches: (url) => url.hostname === HOST && MAIL_PATH.test(url.pathname),
 
   async deepen(url, ctx) {
-    if (hasEmailAuthuser(url)) return url.href;
-    const email = await accountEmail(accountNumber(url) ?? 0, ctx, emailFromTitle(ctx.pageTitle));
+    // Delegated mailboxes (/mail/b/<token>/u/N/): unclear whose email authuser should carry, so don't guess.
+    if (url.pathname.startsWith("/mail/b/")) throw new DeeperLinkError("Delegated mailboxes (/mail/b/…) aren't supported yet");
+    const index = accountNumber(url);
+    if (index === undefined) return url.href;
+    const email = await accountEmail(index, ctx, emailFromTitle(ctx.pageTitle));
     const restOfPath = url.pathname.replace(MAIL_PATH, "").replace(/^\/?/, "/");
     return `https://${HOST}/mail/u${restOfPath}${stableQuery(url, email)}${url.hash}`;
   },

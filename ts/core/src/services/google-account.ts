@@ -9,23 +9,31 @@ export function isEmail(text: string | undefined | null): text is string {
   return !!text && EMAIL.test(text);
 }
 
-/** The URL already names its account by email (`?authuser=me@example.com`), so it is stable. */
-export function hasEmailAuthuser(url: URL): boolean {
-  return isEmail(url.searchParams.get("authuser"));
-}
+/** A `/u/N/` path segment. */
+export const ACCOUNT_SEGMENT = /\/u\/(\d+)(?=\/|$)/;
 
-/** Account number from `?authuser=N` or a `/u/N/` path segment; undefined when the URL names none. */
+/**
+ * Which Google account number a URL means: `?authuser=N`, else a `/u/N/` path segment, else the default, 0.
+ * Undefined when `authuser` is anything but a number (normally an email): the URL is already stable, leave it alone.
+ */
 export function accountNumber(url: URL): number | undefined {
   const authuser = url.searchParams.get("authuser");
-  if (authuser !== null && /^\d+$/.test(authuser)) return Number(authuser);
-  const segment = url.pathname.match(/\/u\/(\d+)(?=\/|$)/)?.[1];
-  return segment === undefined ? undefined : Number(segment);
+  if (authuser) return /^\d+$/.test(authuser) ? Number(authuser) : undefined;
+  return Number(url.pathname.match(ACCOUNT_SEGMENT)?.[1] ?? 0);
 }
 
-/** "Google Account: Alice\n(alice@example.com)" → "alice@example.com". The prefix is localized; only the final parentheses count. */
+/** The URL says which account it means (`authuser` or `/u/N/`); otherwise it only implies the default. */
+export function namesAccount(url: URL): boolean {
+  return url.searchParams.has("authuser") || ACCOUNT_SEGMENT.test(url.pathname);
+}
+
+/**
+ * "Google Account: Alice\n(alice@example.com), Google membership" → "alice@example.com".
+ * Text before and after is localized and optional, so take the last parenthesized email.
+ */
 export function emailFromAccountLabel(label: string | undefined): string | undefined {
-  const email = label?.match(/\(([^()]*)\)\s*$/)?.[1]?.trim();
-  return isEmail(email) ? email : undefined;
+  const emails = [...(label ?? "").matchAll(/\(([^()]*)\)/g)].map((m) => m[1].trim()).filter(isEmail);
+  return emails.at(-1);
 }
 
 /** The Gmail feed's first <title> reads "Gmail - Inbox for me@gmail.com". */
@@ -45,10 +53,21 @@ export async function accountEmail(index: number, ctx: ResolveContext, pageEmail
   try {
     return await emailFromFeed(index, ctx);
   } catch (error) {
-    const fromTab = emailFromAccountLabel(await ctx.findAccountLabel?.(index));
+    const fromTab = emailFromAccountLabel(await labelFromOpenTab(index, ctx));
     if (fromTab) return fromTab;
     const reason = error instanceof Error ? error.message : String(error);
-    throw new DeeperLinkError(`${reason}; open any Gmail, Drive or Docs page for that account and try again`);
+    throw new DeeperLinkError(
+      `Couldn't identify Google account /u/${index}/ (${reason}). Open any Gmail, Drive or Docs page for that account and try again.`,
+    );
+  }
+}
+
+/** A failing lookup must not hide the real reason (the feed's error), so it counts as "no tab". */
+async function labelFromOpenTab(index: number, ctx: ResolveContext): Promise<string | undefined> {
+  try {
+    return await ctx.findAccountLabel?.(index);
+  } catch {
+    return undefined;
   }
 }
 
@@ -57,16 +76,13 @@ async function emailFromFeed(index: number, ctx: ResolveContext): Promise<string
   try {
     response = await ctx.fetch(`https://mail.google.com/mail/u/${index}/feed/atom`);
   } catch (error) {
-    throw new DeeperLinkError(`Could not reach Gmail: ${error}`);
+    throw new Error(`couldn't reach Gmail's feed: ${error}`);
   }
-  if (response.status === 401) {
-    throw new DeeperLinkError(`No Gmail account is signed in at /u/${index}/`);
-  }
-  if (!response.ok) {
-    throw new DeeperLinkError(`Gmail feed for /u/${index}/ returned HTTP ${response.status}`);
-  }
+  // Reasons are shown inside accountEmail's message, so they are lowercase fragments.
+  if (response.status === 401) throw new Error("no Gmail account is signed in there");
+  if (!response.ok) throw new Error(`Gmail's feed returned HTTP ${response.status}`);
   const email = emailFromAtom(await response.text());
-  if (!email) throw new DeeperLinkError(`Could not find the email of Gmail account /u/${index}/`);
+  if (!email) throw new Error("Gmail's feed has no email; Gmail may be off for this account");
   return email;
 }
 

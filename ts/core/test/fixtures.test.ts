@@ -13,10 +13,12 @@ interface Feed {
 interface Case {
   name: string;
   url: string;
+  isOpenPage?: boolean;
   pageTitle?: string;
   pageAccountLabel?: string;
   feeds?: Record<string, Feed>;
   openTabLabels?: Record<string, string>;
+  openTabLookupFails?: boolean;
   expected?: string;
   error?: string;
 }
@@ -35,9 +37,13 @@ function fakeFetch(feeds: Record<string, Feed> = {}): ResolveContext["fetch"] {
 function contextFor(c: Case): ResolveContext {
   return {
     fetch: fakeFetch(c.feeds),
+    isOpenPage: c.isOpenPage,
     pageTitle: c.pageTitle,
     pageAccountLabel: c.pageAccountLabel,
-    findAccountLabel: async (index) => c.openTabLabels?.[index],
+    findAccountLabel: async (index) => {
+      if (c.openTabLookupFails) throw new Error("tab lookup exploded");
+      return c.openTabLabels?.[index];
+    },
   };
 }
 
