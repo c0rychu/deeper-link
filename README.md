@@ -4,19 +4,20 @@
 
 Copy links that stay stable no matter which order you signed into your accounts.
 
-Gmail links like `https://mail.google.com/mail/u/1/#inbox/FMfcg…` point to "the 2nd account you signed into". Sign in in a different order and the link opens the wrong mailbox. Deeper Link rewrites them to
+Gmail, Drive and Docs links like `https://mail.google.com/mail/u/1/#inbox/FMfcg…` or `https://docs.google.com/document/u/1/d/…` point to "the 2nd account you signed into". Sign in in a different order and the link opens the wrong account. Deeper Link rewrites them to name the account by email:
 
 ```
 https://mail.google.com/mail/u/?authuser=you@gmail.com#inbox/FMfcg…
+https://docs.google.com/document/d/…/edit?authuser=you@company.com
 ```
 
-It finds the email on the fly (from the Gmail tab title, or the account's Atom feed), so there's no lookup table to maintain. Details: [spec/gmail.md](spec/gmail.md).
+It finds the email on the fly (from the page's Google account button or the Gmail tab title, else Gmail's account feed or another open tab of that account), so there's no lookup table to maintain, and Workspace accounts without Gmail work too. Details: [spec/google-account.md](spec/google-account.md), [spec/gmail.md](spec/gmail.md), [spec/google-drive.md](spec/google-drive.md).
 
 ## Use (Chrome)
 
-- **Toolbar icon** on a Gmail tab → the stable link to that page is copied. The badge shows ✓ or !; hover the icon for details.
-- **Right-click** in Gmail → *Copy Deeper Link to This Page*.
-- **Right-click a Gmail link** anywhere → *Copy Deeper Link*.
+- **Toolbar icon** on a Gmail, Drive or Docs tab → the stable link to that page is copied. The badge shows ✓ or !; hover the icon for details.
+- **Right-click** on one of those pages → *Copy Deeper Link to This Page*.
+- **Right-click a Gmail, Drive or Docs link** anywhere → *Copy Deeper Link*.
 
 ## Develop
 
@@ -51,6 +52,6 @@ PRIVACY.md             privacy policy (linked from the store)
 
 ### Adding things
 
-- **A service** (e.g. Google Drive): write `spec/<service>.md` + `spec/fixtures/<service>.json`, implement `Service` in `ts/core/src/services/<service>.ts`, add it to `services` in `ts/core/src/registry.ts`.
+- **A service** (e.g. Google Calendar): write `spec/<service>.md` + `spec/fixtures/<service>.json`, implement `Service` in `ts/core/src/services/<service>.ts`, add it to `services` in `ts/core/src/registry.ts` and its fixtures to `ts/core/test/fixtures.test.ts`. Google services should resolve accounts through `services/google-account.ts`.
 - **A platform** (e.g. Safari): a new `ts/<platform>/` that calls `deepen()` from `@deeper-link/core` and supplies a `ResolveContext` (a credentialed `fetch`, plus the page title when available). Add a `build-<platform>` Make target.
 - **A language** (e.g. Python, Rust): a `python/` or `rust/` source dir, its manifest at the root, Make targets hooked into `build`/`test`, and tests that run `spec/fixtures/*.json`.

@@ -1,6 +1,6 @@
 {
   "name": "deeper-link",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Turn fragile, login-order-dependent links (e.g. Gmail /u/0/) into stable ones.",
   "type": "module",

@@ -4,6 +4,13 @@ export interface ResolveContext {
   fetch(url: string): Promise<Response>;
   /** Title of the page, set only when the URL being resolved is the page currently open. */
   pageTitle?: string;
+  /**
+   * `aria-label` of Google's account button on the open page, e.g. "Google Account: Alice\n(alice@example.com)".
+   * Set only when the URL being resolved is the page currently open.
+   */
+  pageAccountLabel?: string;
+  /** Account-button label from another open tab signed in as Google account number `index`, if there is one. */
+  findAccountLabel?(index: number): Promise<string | undefined>;
 }
 
 /** A website whose fragile links we know how to make stable. */

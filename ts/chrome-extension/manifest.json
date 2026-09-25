@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Deeper Link",
-  "description": "Copy stable links that don't depend on account login order (Gmail /u/0/ → ?authuser=you@gmail.com).",
+  "description": "Copy Gmail, Drive and Docs links that always open the right account, whatever the sign-in order (?authuser=you@gmail.com).",
   "minimum_chrome_version": "116",
-  "permissions": ["clipboardWrite", "contextMenus", "offscreen"],
-  "host_permissions": ["https://mail.google.com/*"],
+  "permissions": ["clipboardWrite", "contextMenus", "offscreen", "scripting"],
+  "host_permissions": ["https://mail.google.com/*", "https://drive.google.com/*", "https://docs.google.com/*"],
   "background": { "service_worker": "background.js" },
   "action": {
     "default_title": "Copy Deeper Link",

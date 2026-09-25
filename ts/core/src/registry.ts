@@ -1,8 +1,9 @@
 import { gmail } from "./services/gmail";
+import { googleDrive } from "./services/google-drive";
 import { DeeperLinkError, type ResolveContext, type Service } from "./types";
 
 /** Every supported service. Add new ones here. */
-export const services: readonly Service[] = [gmail];
+export const services: readonly Service[] = [gmail, googleDrive];
 
 export function findService(url: URL): Service | undefined {
   return services.find((service) => service.matches(url));

@@ -4,41 +4,49 @@ import { deepen, type ResolveContext } from "@deeper-link/core";
 
 const MENU_PAGE = "copy-page";
 const MENU_LINK = "copy-link";
-const GMAIL = ["https://mail.google.com/*"];
+// Pages we hold host permissions for (manifest.json): the only ones whose URLs and account buttons we can read.
+const GOOGLE = ["https://mail.google.com/*", "https://drive.google.com/*", "https://docs.google.com/*"];
 const BADGE_MS = 2000;
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: MENU_PAGE,
-    title: "Copy Deeper Link to This Page",
-    contexts: ["page"],
-    documentUrlPatterns: GMAIL,
-  });
-  chrome.contextMenus.create({
-    id: MENU_LINK,
-    title: "Copy Deeper Link",
-    contexts: ["link"],
-    targetUrlPatterns: GMAIL,
+  // Recreate on every install/update so menu patterns follow the manifest.
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: MENU_PAGE,
+      title: "Copy Deeper Link to This Page",
+      contexts: ["page"],
+      documentUrlPatterns: GOOGLE,
+    });
+    chrome.contextMenus.create({
+      id: MENU_LINK,
+      title: "Copy Deeper Link",
+      contexts: ["link"],
+      targetUrlPatterns: GOOGLE,
+    });
   });
 });
 
 chrome.action.onClicked.addListener((tab) => {
-  copyDeeperLink(tab.url, tab.title, tab.id);
+  copyDeeperLink(tab.url, tab, true);
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === MENU_PAGE) copyDeeperLink(info.pageUrl, tab?.title, tab?.id);
-  if (info.menuItemId === MENU_LINK) copyDeeperLink(info.linkUrl, undefined, tab?.id);
+  if (info.menuItemId === MENU_PAGE) copyDeeperLink(info.pageUrl, tab, true);
+  if (info.menuItemId === MENU_LINK) copyDeeperLink(info.linkUrl, tab, false);
 });
 
-/** `pageTitle` must only be given when `url` is the open page; it's how Gmail reveals the account's email. */
-async function copyDeeperLink(url: string | undefined, pageTitle: string | undefined, tabId?: number) {
+/** `isOpenPage`: `url` is the page open in `tab`, so the page itself can say which account it uses. */
+async function copyDeeperLink(url: string | undefined, tab: chrome.tabs.Tab | undefined, isOpenPage: boolean) {
+  const tabId = tab?.id;
   try {
-    // Without a host permission for the page, Chrome hides its URL: it is not a Gmail page.
-    if (!url) throw new Error("Deeper Link works on Gmail pages only");
+    // Without a host permission for the page, Chrome hides its URL: it is not a page we support.
+    if (!url) throw new Error("Deeper Link works on Gmail, Drive and Docs pages only");
+    const page = isOpenPage && tabId !== undefined;
     const ctx: ResolveContext = {
       fetch: (feedUrl) => fetch(feedUrl, { credentials: "include" }),
-      pageTitle,
+      pageTitle: page ? tab?.title : undefined,
+      pageAccountLabel: page ? await readAccountLabel(tabId) : undefined,
+      findAccountLabel,
     };
     const link = await deepen(url, ctx);
     await copyToClipboard(link);
@@ -47,6 +55,34 @@ async function copyDeeperLink(url: string | undefined, pageTitle: string | undef
     console.error("Deeper Link:", error);
     await report(tabId, false, `Deeper Link failed: ${error instanceof Error ? error.message : error}`);
   }
+}
+
+/**
+ * The `aria-label` of Google's account button (top right of every Google app), which ends with the signed-in
+ * email: "Google Account: Alice\n(alice@example.com)". Undefined if the tab isn't a page we may read.
+ */
+async function readAccountLabel(tabId: number): Promise<string | undefined> {
+  try {
+    const [frame] = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: () =>
+        document.querySelector('a[href*="accounts.google.com/SignOutOptions"][aria-label]')?.getAttribute("aria-label") ?? null,
+    });
+    return frame?.result ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Account-button label from any open Gmail/Drive/Docs tab whose URL names account `index` (/u/N/ or authuser=N). */
+async function findAccountLabel(index: number): Promise<string | undefined> {
+  const namesAccount = new RegExp(`/u/${index}(?=[/?#]|$)|[?&]authuser=${index}(?=[&#]|$)`);
+  for (const tab of await chrome.tabs.query({ url: GOOGLE })) {
+    if (tab.id === undefined || !tab.url || !namesAccount.test(tab.url)) continue;
+    const label = await readAccountLabel(tab.id);
+    if (label) return label;
+  }
+  return undefined;
 }
 
 /** Badge flashes ✓/! briefly; the tooltip keeps the details until the next attempt. */

@@ -1,5 +1,5 @@
 {
-  "$comment": "Each case: `url`, optional `pageTitle`, optional `feeds` (account index -> atom feed HTTP response; any other feed request is a 404), and either `expected` or `error` (a substring of the error message).",
+  "$comment": "Each case: `url`, optional `pageTitle` and `pageAccountLabel` (only for the open page), optional `feeds` (account number -> Gmail atom feed HTTP response; any other feed request is a 404), optional `openTabLabels` (account number -> account-button label of another open tab), and either `expected` or `error` (a substring of the error message).",
   "cases": [
     {
       "name": "page title resolves the account",
@@ -23,7 +23,10 @@
       "name": "atom feed resolves the account when there is no page title",
       "url": "https://mail.google.com/mail/u/2/#label/Work/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv",
       "feeds": {
-        "2": { "status": 200, "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed version=\"0.3\" xmlns=\"http://purl.org/atom/ns#\"><title>Gmail - Inbox for dave@example.com</title><tagline>New messages in your Gmail Inbox</tagline><fullcount>0</fullcount></feed>" }
+        "2": {
+          "status": 200,
+          "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed version=\"0.3\" xmlns=\"http://purl.org/atom/ns#\"><title>Gmail - Inbox for dave@example.com</title><tagline>New messages in your Gmail Inbox</tagline><fullcount>0</fullcount></feed>"
+        }
       },
       "expected": "https://mail.google.com/mail/u/?authuser=dave@example.com#label/Work/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv"
     },
@@ -32,7 +35,10 @@
       "url": "https://mail.google.com/mail/u/2/#inbox",
       "pageTitle": "Gmail",
       "feeds": {
-        "2": { "status": 200, "body": "<feed><title>Gmail - Inbox for dave@example.com</title></feed>" }
+        "2": {
+          "status": 200,
+          "body": "<feed><title>Gmail - Inbox for dave@example.com</title></feed>"
+        }
       },
       "expected": "https://mail.google.com/mail/u/?authuser=dave@example.com#inbox"
     },
@@ -40,7 +46,10 @@
       "name": "no /u/N segment means account 0",
       "url": "https://mail.google.com/mail/#inbox",
       "feeds": {
-        "0": { "status": 200, "body": "<feed><title>Gmail - Inbox for erin@example.com</title></feed>" }
+        "0": {
+          "status": 200,
+          "body": "<feed><title>Gmail - Inbox for erin@example.com</title></feed>"
+        }
       },
       "expected": "https://mail.google.com/mail/u/?authuser=erin@example.com#inbox"
     },
@@ -62,15 +71,58 @@
       "expected": "https://mail.google.com/mail/u/?authuser=alice@example.com&pli=1#inbox"
     },
     {
+      "name": "open page's account button wins over title and feed",
+      "url": "https://mail.google.com/mail/u/1/#inbox/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv",
+      "pageAccountLabel": "Google Account: Alice Example  \n(alice@example.com)",
+      "pageTitle": "Inbox - bob@example.org - Gmail",
+      "expected": "https://mail.google.com/mail/u/?authuser=alice@example.com#inbox/FMfcgzQXJWDsKLwPfNfDhhZmfLlVmVzv"
+    },
+    {
+      "name": "numeric authuser is replaced by the email",
+      "url": "https://mail.google.com/mail/?authuser=1#inbox",
+      "pageTitle": "Inbox - alice@example.com - Gmail",
+      "expected": "https://mail.google.com/mail/u/?authuser=alice@example.com#inbox"
+    },
+    {
+      "name": "feed without an email falls back to another open tab of that account",
+      "url": "https://mail.google.com/mail/u/3/#inbox",
+      "feeds": {
+        "3": {
+          "status": 200,
+          "body": "<html><title>Sign in - Google Accounts</title></html>"
+        }
+      },
+      "openTabLabels": {
+        "3": "Google Account: Carol Example  \n(carol@example.net)"
+      },
+      "expected": "https://mail.google.com/mail/u/?authuser=carol@example.net#inbox"
+    },
+    {
+      "name": "localized account label: email is taken from the final parentheses",
+      "url": "https://mail.google.com/mail/u/2/#inbox",
+      "pageAccountLabel": "Google 帳戶： 王小明 (舊 ming@old.example.com)  \n(ming@example.com)",
+      "expected": "https://mail.google.com/mail/u/?authuser=ming@example.com#inbox"
+    },
+    {
       "name": "signed-out account index is reported",
       "url": "https://mail.google.com/mail/u/5/#inbox",
-      "feeds": { "5": { "status": 401, "body": "Unauthorized" } },
+      "feeds": {
+        "5": {
+          "status": 401,
+          "body": "Unauthorized"
+        }
+      },
       "error": "No Gmail account is signed in at /u/5/"
     },
     {
       "name": "feed without an email is reported",
       "url": "https://mail.google.com/mail/u/0/#inbox",
-      "feeds": { "0": { "status": 200, "body": "<html><title>Sign in - Google Accounts</title></html>" } },
+      "feeds": {
+        "0": {
+          "status": 200,
+          "body": "<html><title>Sign in - Google Accounts</title></html>"
+        }
+      },
       "error": "Could not find the email of Gmail account /u/0/"
     },
     {

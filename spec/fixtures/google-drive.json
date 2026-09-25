@@ -1,0 +1,92 @@
+{
+  "$comment": "Same case format as gmail.json.",
+  "cases": [
+    {
+      "name": "Drive folder: /u/N/ removed, open page's account button gives the email",
+      "url": "https://drive.google.com/drive/u/1/folders/1AbCdEfGhIjKlMnOp",
+      "pageAccountLabel": "Google Account: Alice Example  \n(alice@example.com)",
+      "expected": "https://drive.google.com/drive/folders/1AbCdEfGhIjKlMnOp?authuser=alice@example.com"
+    },
+    {
+      "name": "Doc link with /u/N/ resolved through the Gmail feed; query and fragment kept",
+      "url": "https://docs.google.com/document/u/1/d/1DocId_xyz/edit?tab=t.0#heading=h.1",
+      "feeds": {
+        "1": {
+          "status": 200,
+          "body": "<feed><title>Gmail - Inbox for dave@example.com</title></feed>"
+        }
+      },
+      "expected": "https://docs.google.com/document/d/1DocId_xyz/edit?authuser=dave@example.com&tab=t.0#heading=h.1"
+    },
+    {
+      "name": "open Doc without /u/N/ in a Workspace account with Gmail disabled: account button decides",
+      "url": "https://docs.google.com/document/d/1DocId_xyz/edit",
+      "pageAccountLabel": "Google Account: Erin Example  \n(erin@example.org)",
+      "feeds": {
+        "0": {
+          "status": 200,
+          "body": "<html><title>Gmail is not enabled for this account</title></html>"
+        }
+      },
+      "expected": "https://docs.google.com/document/d/1DocId_xyz/edit?authuser=erin@example.org"
+    },
+    {
+      "name": "link without /u/N/ and no open page means the default account 0",
+      "url": "https://docs.google.com/presentation/d/1SlidesId/edit",
+      "feeds": {
+        "0": {
+          "status": 200,
+          "body": "<feed><title>Gmail - Inbox for frank@example.com</title></feed>"
+        }
+      },
+      "expected": "https://docs.google.com/presentation/d/1SlidesId/edit?authuser=frank@example.com"
+    },
+    {
+      "name": "Sheet with numeric authuser, Gmail disabled: another open tab of that account resolves it",
+      "url": "https://docs.google.com/spreadsheets/d/1SheetId/edit?authuser=2#gid=0",
+      "feeds": {
+        "2": {
+          "status": 200,
+          "body": "<html><title>Gmail is not enabled for this account</title></html>"
+        }
+      },
+      "openTabLabels": {
+        "2": "Google Account: Erin Example  \n(erin@example.org)"
+      },
+      "expected": "https://docs.google.com/spreadsheets/d/1SheetId/edit?authuser=erin@example.org#gid=0"
+    },
+    {
+      "name": "Drive file view link keeps its other parameters",
+      "url": "https://drive.google.com/file/d/1FileId/view?usp=sharing",
+      "pageAccountLabel": "Google Account: Alice Example  \n(alice@example.com)",
+      "expected": "https://drive.google.com/file/d/1FileId/view?authuser=alice@example.com&usp=sharing"
+    },
+    {
+      "name": "Form link",
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSf_formId/viewform",
+      "pageAccountLabel": "Google Account: Alice Example  \n(alice@example.com)",
+      "expected": "https://docs.google.com/forms/d/e/1FAIpQLSf_formId/viewform?authuser=alice@example.com"
+    },
+    {
+      "name": "already stable URL is returned unchanged",
+      "url": "https://docs.google.com/document/d/1DocId_xyz/edit?authuser=alice@example.com",
+      "expected": "https://docs.google.com/document/d/1DocId_xyz/edit?authuser=alice@example.com"
+    },
+    {
+      "name": "account without Gmail and no open tab for it: explain what to do",
+      "url": "https://drive.google.com/drive/u/4/my-drive",
+      "feeds": {
+        "4": {
+          "status": 200,
+          "body": "<html><title>Gmail is not enabled for this account</title></html>"
+        }
+      },
+      "error": "open any Gmail, Drive or Docs page for that account"
+    },
+    {
+      "name": "look-alike host is rejected",
+      "url": "https://docs.google.com.example.net/document/d/1DocId_xyz/edit",
+      "error": "Unsupported URL"
+    }
+  ]
+}
