@@ -1,6 +1,7 @@
-// Chrome glue: turns clicks into core.deepen() calls and puts the result on the clipboard.
+// Browser glue (Chrome and Safari): turns clicks into core.deepen() calls and puts the result on the clipboard.
 
 import { accountNumber, deepen, type ResolveContext } from "@deeper-link/core";
+import { copyWithTextarea } from "./clipboard";
 
 const MENU_PAGE = "copy-page";
 const MENU_LINK = "copy-link";
@@ -8,8 +9,12 @@ const MENU_LINK = "copy-link";
 const GOOGLE = ["https://mail.google.com/*", "https://drive.google.com/*", "https://docs.google.com/*"];
 const BADGE_MS = 2000;
 
-chrome.runtime.onInstalled.addListener(() => {
-  // Recreate on every install/update so menu patterns follow the manifest.
+// Recreate on every install/update so menu patterns follow the manifest. Chrome keeps menus across browser restarts;
+// Safari isn't documented to, so recreate them at startup too (harmless where they were kept).
+chrome.runtime.onInstalled.addListener(createMenus);
+chrome.runtime.onStartup.addListener(createMenus);
+
+function createMenus() {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: MENU_PAGE,
@@ -24,7 +29,7 @@ chrome.runtime.onInstalled.addListener(() => {
       targetUrlPatterns: GOOGLE,
     });
   });
-});
+}
 
 chrome.action.onClicked.addListener((tab) => {
   copyDeeperLink(tab.url, tab, true);
@@ -94,12 +99,20 @@ async function report(tabId: number | undefined, ok: boolean, message: string) {
   setTimeout(() => chrome.action.setBadgeText({ tabId, text: "" }), BADGE_MS);
 }
 
+/**
+ * A service worker has no DOM, hence no clipboard: Chrome lends an offscreen document for the copy. Safari has no
+ * offscreen API, but runs this script as a background page (see build.mjs), which has a DOM of its own.
+ */
+async function copyToClipboard(text: string) {
+  const copied = "offscreen" in chrome ? await copyViaOffscreen(text) : copyWithTextarea(text);
+  if (!copied) throw new Error("Could not write to the clipboard");
+}
+
 // Shared while a createDocument() is in flight: a second quick click would otherwise try to
 // create a second offscreen document, which Chrome rejects.
 let creatingOffscreen: Promise<void> | undefined;
 
-/** MV3 service workers have no clipboard access, so an offscreen document does the copy. */
-async function copyToClipboard(text: string) {
+async function copyViaOffscreen(text: string): Promise<boolean> {
   if (!(await chrome.offscreen.hasDocument())) {
     creatingOffscreen ??= chrome.offscreen
       .createDocument({
@@ -110,6 +123,5 @@ async function copyToClipboard(text: string) {
       .finally(() => (creatingOffscreen = undefined));
     await creatingOffscreen;
   }
-  const copied: boolean = await chrome.runtime.sendMessage({ target: "offscreen", type: "copy", text });
-  if (!copied) throw new Error("Could not write to the clipboard");
+  return chrome.runtime.sendMessage({ target: "offscreen", type: "copy", text });
 }

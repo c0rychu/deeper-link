@@ -1,0 +1,366 @@
+<!doctype html>
+<!-- Mac App Store screenshots. `make images` renders screenshots.html#1 … #4 at 1440x900, 2x → 2880x1800.
+     Pages are illustrative, logo-free mock-ups (fictional example.com people) inside a Safari-style window.
+     Apple rejects screenshots showing other platforms: keep every window Safari. -->
+<meta charset="utf-8">
+<style>
+  :root {
+    --yellow: #FFD60A; --red: #FF2600; --deep: #8A1C00;
+    --ink: #1D1D1F; --ink-2: #515154; --ink-3: #86868B;
+    --mail-ink: #1F2328; --mail-ink-2: #4B5563; --line: #E3E8EF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1440px; height: 900px; overflow: hidden; }
+  body { font: 14px/1.4 -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased;
+         background: linear-gradient(160deg, #FFF6DC 0%, #FFFDF7 45%, #FFF1EA 100%); position: relative; }
+  body > section { display: none; position: absolute; inset: 0; }
+  body[data-shot="1"] #s1, body[data-shot="2"] #s2, body[data-shot="3"] #s3, body[data-shot="4"] #s4 { display: block; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .55; }
+  svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* ---------- Headline ---------- */
+  .head { position: absolute; top: 58px; left: 0; right: 0; text-align: center; }
+  .head h2 { font: 700 54px/1.08 -apple-system, "SF Pro Display", sans-serif; letter-spacing: -1.4px; color: var(--ink); }
+  .head h2 em { font-style: normal; background: linear-gradient(90deg, #E8A600, var(--red)); -webkit-background-clip: text; color: transparent; }
+  .head p { margin-top: 14px; font-size: 21px; line-height: 1.4; color: var(--ink-2); letter-spacing: -.2px; }
+
+  /* ---------- Safari window (macOS 26 style, light) ---------- */
+  .win { position: absolute; left: 110px; top: 236px; width: 1220px; height: 720px; border-radius: 20px; overflow: hidden; background: #fff;
+         box-shadow: 0 0 0 .5px rgba(0,0,0,.18), 0 30px 80px rgba(80,40,0,.22), 0 8px 24px rgba(80,40,0,.10); }
+  .sbar { height: 52px; background: #F6F6F6; display: flex; align-items: center; padding: 0 14px 0 18px; gap: 6px; position: relative; }
+  .lights { display: flex; gap: 8px; margin-right: 14px; }
+  .lights i { width: 12px; height: 12px; border-radius: 50%; display: block; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.2); }
+  .sb { width: 32px; height: 30px; display: grid; place-items: center; color: #5C5C60; border-radius: 8px; }
+  .sb.off { color: #BDBDC2; }
+  .sb svg { width: 19px; height: 19px; stroke-width: 1.7; }
+  .addr { position: absolute; left: 50%; transform: translateX(-50%); width: 480px; height: 34px; border-radius: 11px; background: rgba(0,0,0,.055);
+          display: flex; align-items: center; justify-content: center; font-size: 14px; color: #3A3A3C; gap: 6px; }
+  .addr .fav { width: 16px; height: 16px; border-radius: 4px; display: grid; place-items: center; color: #fff; font-size: 10px; font-weight: 700; }
+  .right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+  .extb { width: 34px; height: 30px; display: grid; place-items: center; border-radius: 8px; position: relative; }
+  .extb img { width: 19px; height: 19px; }
+  .extb.hot { background: rgba(0,0,0,.08); }
+  .tabsr { height: 34px; background: #EDEDED; display: flex; gap: 1px; padding: 0 8px; align-items: center; border-bottom: .5px solid #D6D6D6; }
+  .tb { flex: 1; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 12px; color: #6E6E73; padding: 0 12px; }
+  .tb span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+  .tb.on { background: #fff; color: #1D1D1F; box-shadow: 0 0 0 .5px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06); }
+  .tb .fav { width: 14px; height: 14px; border-radius: 3px; flex: none; }
+  .page { position: absolute; top: 86px; left: 0; right: 0; bottom: 0; overflow: hidden; }
+
+  /* ---------- macOS context menu ---------- */
+  .menu { position: absolute; width: 280px; padding: 6px; border-radius: 14px; background: rgba(250,250,250,.95); backdrop-filter: blur(20px);
+          box-shadow: 0 0 0 .5px rgba(0,0,0,.22), 0 14px 40px rgba(0,0,0,.22), inset 0 0 0 .5px rgba(255,255,255,.7); font-size: 13.5px; color: #1D1D1F; }
+  .mi { height: 24px; padding: 0 12px 0 14px; border-radius: 8px; display: flex; align-items: center; gap: 9px; }
+  .mi svg { width: 15px; height: 15px; stroke-width: 1.6; color: #3A3A3C; }
+  .mi.ext { padding-left: 10px; }
+  .mi.on { background: #3D8BF2; color: #fff; }
+  .msep { height: 1px; background: rgba(0,0,0,.1); margin: 5px 12px; }
+  .cursor { position: absolute; width: 30px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+
+  /* ---------- Mail (themed, logo-free) ---------- */
+  .mail { position: absolute; inset: 0; background: #EDF1F6; display: grid; grid-template-columns: 232px 1fr; grid-template-rows: 60px 1fr; color: var(--mail-ink); }
+  .mtop { grid-column: 1 / 3; display: flex; align-items: center; padding: 0 16px; gap: 12px; }
+  .mlogo { display: flex; align-items: center; gap: 8px; font-size: 20px; color: var(--mail-ink-2); width: 204px; padding-left: 8px; }
+  .mlogo svg { width: 24px; height: 24px; }
+  .msearch { width: 640px; height: 44px; border-radius: 22px; background: #DFE5EE; display: flex; align-items: center; gap: 12px; padding: 0 16px; color: var(--mail-ink-2); font-size: 15px; }
+  .me { margin-left: auto; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--yellow), var(--red)); color: #fff; font-weight: 600; display: grid; place-items: center; }
+  .nav { padding: 4px 12px 0 8px; }
+  .compose { display: inline-flex; align-items: center; gap: 12px; height: 52px; padding: 0 20px 0 16px; border-radius: 16px; background: #FFE9A6; font-weight: 500; margin-bottom: 12px; }
+  .item { height: 32px; border-radius: 0 16px 16px 0; display: flex; align-items: center; gap: 16px; padding: 0 14px 0 20px; margin-left: -8px; }
+  .item svg { width: 18px; height: 18px; color: var(--mail-ink-2); }
+  .item span { flex: 1; } .item small { font-size: 12px; font-weight: 600; }
+  .item.on { background: #D5DEEB; font-weight: 700; }
+  .item .dot { flex: none; width: 12px; height: 12px; border-radius: 4px; margin: 0 3px 0 3px; }
+  .labels { padding: 16px 12px 6px 12px; font-size: 15px; }
+  .main { background: #fff; border-radius: 16px; margin: 0 16px 0 0; box-shadow: 0 1px 3px rgba(20,30,50,.06); padding: 26px 0 0 72px; position: relative; }
+  .main h1 { font-size: 22px; font-weight: 400; display: flex; align-items: center; gap: 10px; letter-spacing: -.1px; }
+  .chip { font-size: 12px; border-radius: 4px; padding: 1px 6px; }
+  .from { display: flex; gap: 14px; margin: 22px 0 0 -56px; line-height: 20px; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 600; flex: none; }
+  .from small { color: #5F6775; font-size: 12px; }
+  .mbody { margin-top: 18px; width: 440px; font-size: 14px; line-height: 22px; color: #24292F; }
+  .mbody p { margin-bottom: 12px; }
+  .mbody code { font: 12.5px/1 "SF Mono", Menlo, monospace; background: #FFF1E3; color: var(--deep); padding: 2px 5px; border-radius: 4px; }
+  .mbody .em { color: #C41F00; font-weight: 600; }
+  .mbody ul { margin: -4px 0 12px 18px; } .mbody li::marker { color: var(--red); }
+  .atts { display: flex; gap: 10px; margin-top: 2px; }
+  .att { height: 52px; border: 1px solid var(--line); border-radius: 8px; display: flex; align-items: center; gap: 10px; padding: 0 14px 0 12px; }
+  .att .ic { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; color: #fff; flex: none; }
+  .att .ic svg { width: 16px; height: 16px; stroke-width: 2; }
+  .att b { font-size: 12.5px; font-weight: 600; display: block; white-space: nowrap; } .att small { font-size: 11px; color: #6B7280; }
+  .docchip { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
+  .docchip i { width: 22px; height: 26px; border-radius: 3px; background: #3B78E7; display: block; position: relative; }
+  .docchip i::after { content: ""; position: absolute; left: 5px; right: 5px; top: 8px; height: 10px; border-top: 2px solid #fff; border-bottom: 2px solid #fff; }
+  .docchip b { font-weight: 600; font-size: 13px; }
+
+  /* ---------- Docs (logo-free) ---------- */
+  .docs { position: absolute; inset: 0; background: #F4F6FA; }
+  .dtop { height: 64px; background: #fff; display: flex; align-items: center; gap: 14px; padding: 0 18px; }
+  .dicon { width: 26px; height: 34px; border-radius: 4px; background: #3B78E7; position: relative; flex: none; }
+  .dicon::after { content: ""; position: absolute; left: 6px; right: 6px; top: 11px; height: 12px; border-top: 2px solid #fff; border-bottom: 2px solid #fff; }
+  .dtitle { font-size: 18px; color: #1F1F1F; }
+  .dmenu { font-size: 13.5px; color: #444746; display: flex; gap: 14px; margin-top: 2px; }
+  .share { margin-left: auto; height: 38px; border-radius: 19px; background: #C2E7FF; color: #001D35; font-weight: 500; padding: 0 20px; display: flex; align-items: center; gap: 8px; }
+  .dtools { height: 40px; margin: 6px 16px; border-radius: 20px; background: #EDF2FA; }
+  .sheet { position: absolute; left: 50%; transform: translateX(-50%); top: 122px; width: 680px; height: 700px; background: #fff; box-shadow: 0 1px 3px rgba(60,64,67,.15);
+           padding: 64px 76px; color: #202124; }
+  .sheet h3 { font: 400 28px/1.2 Georgia, serif; margin-bottom: 18px; }
+  .sheet h4 { font-size: 15px; font-weight: 700; margin: 20px 0 8px; }
+  .sheet p { font-size: 14px; line-height: 23px; color: #3C4043; }
+  .todo { font-size: 14px; line-height: 22px; color: #3C4043; display: flex; align-items: center; gap: 10px; margin: 7px 0; }
+  .todo::before { content: ""; width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid #80868B; flex: none; }
+  .todo.done { color: #80868B; text-decoration: line-through; }
+  .todo.done::before { border-color: #1A73E8; background: #1A73E8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m6 12.5 4 4 8-9' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/12px no-repeat; }
+
+  /* ---------- Callouts ---------- */
+  .callout { position: absolute; background: #fff; border-radius: 16px; padding: 18px 22px; box-shadow: 0 0 0 .5px rgba(0,0,0,.08), 0 18px 50px rgba(80,40,0,.22); }
+  .callout.pop::before { content: ""; position: absolute; top: -8px; right: 101px; width: 16px; height: 16px; background: #fff; transform: rotate(45deg);
+                         border-radius: 3px 0 0 0; box-shadow: -.5px -.5px 0 rgba(0,0,0,.08); }
+  .callout .k { font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: #1E8E3E; display: flex; align-items: center; gap: 6px; }
+  .url { font: 15px/1.5 "SF Mono", Menlo, monospace; color: #3A3A3C; margin-top: 8px; white-space: nowrap; }
+  .url mark { background: #FFF1C2; color: var(--deep); border-radius: 4px; padding: 1px 2px; font-weight: 600; }
+  .url del { background: #FFE3DD; color: #C41F00; border-radius: 4px; padding: 1px 2px; }
+
+  /* ---------- Shot 2: before → after ---------- */
+  .rows { position: absolute; top: 300px; left: 150px; right: 150px; display: grid; gap: 22px; }
+  .row { background: #fff; border-radius: 20px; padding: 24px 30px; display: grid; grid-template-columns: 120px 1fr; gap: 6px 24px; align-items: center;
+         box-shadow: 0 0 0 .5px rgba(0,0,0,.07), 0 14px 40px rgba(80,40,0,.10); }
+  .row .svc { grid-row: 1 / 3; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 12px; letter-spacing: -.3px; }
+  .row .svc i { width: 12px; height: 12px; border-radius: 4px; }
+  .row .url { margin: 0; font-size: 17px; display: flex; align-items: center; gap: 12px; word-break: normal; white-space: nowrap; }
+  .row .url.old { color: #8E8E93; }
+  .tag { font: 600 12px/1 -apple-system, sans-serif; border-radius: 6px; padding: 5px 8px; flex: none; letter-spacing: .2px; }
+  .tag.bad { background: #FFE8E3; color: #C41F00; } .tag.good { background: #E3F5E8; color: #1E7B34; }
+
+  /* ---------- Shot 4: privacy ---------- */
+  .hero { position: absolute; top: 250px; left: 50%; transform: translateX(-50%); width: 168px; height: 168px; border-radius: 40px; background: #fff; display: grid; place-items: center;
+          box-shadow: 0 0 0 .5px rgba(0,0,0,.06), 0 24px 60px rgba(80,40,0,.18); }
+  .hero img { width: 120px; }
+  .tiles { position: absolute; top: 478px; left: 130px; right: 130px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+  .tile { background: #fff; border-radius: 22px; padding: 30px 26px; box-shadow: 0 0 0 .5px rgba(0,0,0,.07), 0 14px 40px rgba(80,40,0,.10); min-height: 250px; }
+  .tile .ic { width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center; margin-bottom: 20px; }
+  .tile .ic svg { width: 28px; height: 28px; stroke-width: 2; }
+  .tile h5 { font-size: 21px; font-weight: 700; letter-spacing: -.4px; margin-bottom: 10px; }
+  .tile p { font-size: 15.5px; line-height: 1.45; color: var(--ink-2); }
+</style>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="sidebar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="3"/><path d="M9.5 5v14"/></symbol>
+  <symbol id="chevl" viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></symbol>
+  <symbol id="chevr" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></symbol>
+  <symbol id="share" viewBox="0 0 24 24"><path d="M12 3.8v11M8.3 7.3 12 3.6l3.7 3.7M8 10.5H6.5a1 1 0 0 0-1 1v7.7a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-7.7a1 1 0 0 0-1-1H16"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="tabs" viewBox="0 0 24 24"><rect x="3.5" y="7.5" width="13" height="12" rx="2.5"/><path d="M7.5 4.5h10a3 3 0 0 1 3 3v8"/></symbol>
+  <symbol id="reload" viewBox="0 0 24 24"><path d="M18.5 12a6.5 6.5 0 1 1-2-4.7"/><path d="M17 3.8v3.9h-3.9"/></symbol>
+  <symbol id="source" viewBox="0 0 24 24"><path d="M17 11V5.5a1.5 1.5 0 0 0-1.5-1.5h-8A1.5 1.5 0 0 0 6 5.5v13A1.5 1.5 0 0 0 7.5 20H11M9 8h5M9 11.5h3"/><circle cx="15.5" cy="15.5" r="2.8"/><path d="m17.6 17.6 2.4 2.4"/></symbol>
+  <symbol id="save" viewBox="0 0 24 24"><path d="M12 4v10M8 10.5l4 4 4-4M5 14.5v3.5A1.5 1.5 0 0 0 6.5 19.5h11A1.5 1.5 0 0 0 19 18v-3.5"/></symbol>
+  <symbol id="print" viewBox="0 0 24 24"><path d="M7.5 8.5V4.5h9v4M7.5 17H5.5a1 1 0 0 1-1-1v-5.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2V16a1 1 0 0 1-1 1h-2"/><rect x="7.5" y="13.5" width="9" height="6.5" rx="1"/></symbol>
+  <symbol id="tools" viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 0-2-2z"/><path d="m4.5 4.5 5 5M3.8 7.2l3.4-3.4"/></symbol>
+  <symbol id="box" viewBox="0 0 24 24"><path d="M4 7.5 12 4l8 3.5v9L12 20l-8-3.5z"/><path d="m4 7.5 8 3.5 8-3.5M12 11v9"/></symbol>
+  <symbol id="image" viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="2"/><circle cx="9" cy="9.5" r="1.6"/><path d="m5 18 5-5 3 3 2.5-2.5L19.5 17.5"/></symbol>
+  <symbol id="mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></symbol>
+  <symbol id="pencil" viewBox="0 0 24 24"><path d="M4.5 19.5h3.8L19 8.8 15.2 5 4.5 15.7z"/><path d="M13.2 7 17 10.8"/></symbol>
+  <symbol id="inbox" viewBox="0 0 24 24"><path d="M4 13.5h4.2l1.6 2.5h4.4l1.6-2.5H20"/><rect x="4" y="4.5" width="16" height="15" rx="2"/></symbol>
+  <symbol id="star" viewBox="0 0 24 24"><path d="m12 3.8 2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></symbol>
+  <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.6V12l3 1.9"/></symbol>
+  <symbol id="send" viewBox="0 0 24 24"><path d="M4.5 19.5 20.5 12 4.5 4.5l2.3 7.5zM6.8 12h6"/></symbol>
+  <symbol id="draft" viewBox="0 0 24 24"><path d="M14 3.8H7.2A1.2 1.2 0 0 0 6 5v14a1.2 1.2 0 0 0 1.2 1.2h9.6A1.2 1.2 0 0 0 18 19V7.8z"/><path d="M14 3.8v4h4M9 13h6M9 16.5h4"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+  <symbol id="nocloud" viewBox="0 0 24 24"><path d="M7 18.5h9.5a4 4 0 0 0 .8-7.9A5.5 5.5 0 0 0 7 9.2 4.7 4.7 0 0 0 7 18.5z"/><path d="M4 4l16 16"/></symbol>
+  <symbol id="spark" viewBox="0 0 24 24"><path d="M12 3.5v4M12 16.5v4M3.5 12h4M16.5 12h4M6 6l2.6 2.6M15.4 15.4 18 18M18 6l-2.6 2.6M8.6 15.4 6 18"/></symbol>
+  <symbol id="people" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="16.8" cy="9.5" r="2.6"/><path d="M15.5 14.2a4.6 4.6 0 0 1 5 4.8"/></symbol>
+  <symbol id="people1" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/></symbol>
+</svg>
+
+<!-- Safari toolbar + tab bar, shared by shots 1 and 3 (the tab titles and address differ). -->
+<template id="safari">
+  <div class="sbar">
+    <div class="lights"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+    <div class="sb"><svg class="i"><use href="#sidebar"/></svg></div>
+    <div class="sb"><svg class="i"><use href="#chevl"/></svg></div>
+    <div class="sb off"><svg class="i"><use href="#chevr"/></svg></div>
+    <div class="addr"><span class="fav" data-fav></span><span data-host></span></div>
+    <div class="right">
+      <div class="extb"><img src="../../../assets/icon.svg"></div>
+      <div class="sb"><svg class="i"><use href="#share"/></svg></div>
+      <div class="sb"><svg class="i"><use href="#plus"/></svg></div>
+      <div class="sb"><svg class="i"><use href="#tabs"/></svg></div>
+    </div>
+  </div>
+  <div class="tabsr"></div>
+</template>
+
+<!-- ============ 1: right-click menu on Mail ============ -->
+<section id="s1">
+  <div class="blob" style="width:520px;height:360px;left:-120px;top:-120px;background:#FFE27A"></div>
+  <div class="blob" style="width:520px;height:420px;right:-160px;bottom:-160px;background:#FFB39E"></div>
+  <div class="head">
+    <h2>Links that open the <em>right account</em></h2>
+    <p>Right-click any Gmail, Drive or Docs page. The copied link names your account by email, not sign-in order.</p>
+  </div>
+  <div class="win" data-safari data-host="mail.google.com" data-fav="#EA4335"
+       data-tabs="#EA4335|Deeper Link 0.3 is ready to ship – alice@example.com – Mail;#FF2600|Deeper Link – App Store;#6E6E73|deeper-link/spec/gmail.md">
+    <div class="page">
+      <div class="mail">
+        <div class="mtop">
+          <div class="mlogo"><svg class="i"><use href="#mail"/></svg>Mail</div>
+          <div class="msearch"><svg class="i"><use href="#search"/></svg>Search mail</div>
+          <div class="me">A</div>
+        </div>
+        <div class="nav">
+          <div class="compose"><svg class="i"><use href="#pencil"/></svg>Compose</div>
+          <div class="item on"><svg class="i"><use href="#inbox"/></svg><span>Inbox</span><small>42</small></div>
+          <div class="item"><svg class="i"><use href="#star"/></svg><span>Starred</span></div>
+          <div class="item"><svg class="i"><use href="#clock"/></svg><span>Snoozed</span></div>
+          <div class="item"><svg class="i"><use href="#send"/></svg><span>Sent</span></div>
+          <div class="item"><svg class="i"><use href="#draft"/></svg><span>Drafts</span><small>3</small></div>
+          <div class="labels">Labels</div>
+          <div class="item"><span class="dot" style="background:#FFD60A"></span><span>Launch</span></div>
+          <div class="item"><span class="dot" style="background:#FF2600"></span><span>Links</span></div>
+          <div class="item"><span class="dot" style="background:#8A1C00"></span><span>Deep work</span></div>
+        </div>
+        <div class="main">
+          <h1>Deeper Link 0.3 is ready to ship <span class="chip" style="background:#E3E9F1;color:#3F4652">Inbox</span><span class="chip" style="background:#FFD60A;color:#4a3300">Launch</span></h1>
+          <div class="from">
+            <div class="avatar" style="background:#FFF4DA"><img src="../../../assets/icon.svg" style="width:30px"></div>
+            <div><b>Deeper Link</b> <small>&lt;hello@example.com&gt;</small><br><small>to me</small></div>
+          </div>
+          <div class="mbody">
+            <p>Hi Alice,</p>
+            <p>Remember when <code>/mail/u/1/</code> opened whichever account you happened to sign into second? Now that's over in Safari too.</p>
+            <p>Deeper Link rewrites it to <code>?authuser=alice@example.com</code>, so every link lands in the <span class="em">right inbox</span>, every time.</p>
+            <ul><li>Right-click any Gmail page or link</li><li>Finds your account on the fly, no setup</li><li>Everything stays on your Mac</li></ul>
+            <p>Try it on this very email.</p>
+            <p>Cheers,<br>The Deeper Link team</p>
+          </div>
+          <div class="atts">
+            <div class="att wide"><div class="ic" style="background:#FF2600"><svg class="i"><use href="#box"/></svg></div><div><b>Deeper Link.xcarchive</b><small>1.2 MB</small></div></div>
+            <div class="att"><div class="ic" style="background:#E6A800"><svg class="i"><use href="#image"/></svg></div><div><b>app-icon-1024.png</b><small>31 KB</small></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Safari's page menu as it really looks (system items have icons; extension items don't, and sit flush left). -->
+  <div class="menu" style="left:930px;top:410px">
+    <div class="mi"><svg class="i"><use href="#chevl"/></svg>Back</div>
+    <div class="mi"><svg class="i"><use href="#reload"/></svg>Reload Page</div>
+    <div class="msep"></div>
+    <div class="mi"><svg class="i"><use href="#source"/></svg>Show Page Source</div>
+    <div class="mi"><svg class="i"><use href="#save"/></svg>Save Page As…</div>
+    <div class="mi"><svg class="i"><use href="#print"/></svg>Print Page…</div>
+    <div class="msep"></div>
+    <div class="mi on ext">Copy Deeper Link to This Page</div>
+    <div class="msep"></div>
+    <div class="mi"><svg class="i"><use href="#tools"/></svg>Inspect Element</div>
+  </div>
+  <svg class="cursor" style="left:1155px;top:562px" viewBox="0 0 18 26"><path d="M1.6 1.2v19.3l4.7-4.4 3.1 7.4 3.4-1.4-3.1-7.2h6.6z" fill="#000" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>
+  <div class="callout" style="left:700px;top:700px">
+    <div class="k"><svg class="i" style="width:15px;height:15px;stroke-width:2.6"><use href="#check"/></svg>Copied</div>
+    <div class="url">mail.google.com/mail/u/<mark>?authuser=alice@example.com</mark>#inbox/FMfcgzQX…</div>
+  </div>
+</section>
+
+<!-- ============ 2: before → after ============ -->
+<section id="s2">
+  <div class="blob" style="width:560px;height:380px;right:-140px;top:-140px;background:#FFE27A"></div>
+  <div class="blob" style="width:520px;height:420px;left:-180px;bottom:-180px;background:#FFB39E"></div>
+  <div class="head">
+    <h2><em>/u/1/</em> breaks. Your email doesn't.</h2>
+    <p>Google numbers your accounts by sign-in order. Deeper Link swaps the number for the account's email.</p>
+  </div>
+  <div class="rows">
+    <div class="row">
+      <div class="svc"><i style="background:#EA4335"></i>Gmail</div>
+      <div class="url old"><span>mail.google.com/mail<del>/u/1/</del>#inbox/FMfcgzQX…</span> <span class="tag bad">= 2nd account signed in</span></div>
+      <div class="url"><span>mail.google.com/mail/u/<mark>?authuser=alice@example.com</mark>#inbox/FMfcgzQX…</span> <span class="tag good">Always Alice's inbox</span></div>
+    </div>
+    <div class="row">
+      <div class="svc"><i style="background:#1E8E3E"></i>Drive</div>
+      <div class="url old"><span>drive.google.com/drive<del>/u/2/</del>folders/1AbCdEf…</span> <span class="tag bad">= 3rd account signed in</span></div>
+      <div class="url"><span>drive.google.com/drive/folders/1AbCdEf…<mark>?authuser=alice@company.com</mark></span> <span class="tag good">Always the work account</span></div>
+    </div>
+    <div class="row">
+      <div class="svc"><i style="background:#3B78E7"></i>Docs</div>
+      <div class="url old"><span>docs.google.com/document/d/1DocId…/edit</span> <span class="tag bad">= your default account</span></div>
+      <div class="url"><span>docs.google.com/document/d/1DocId…/edit<mark>?authuser=alice@company.com</mark></span> <span class="tag good">Always the work account</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3: toolbar button on Docs ============ -->
+<section id="s3">
+  <div class="blob" style="width:520px;height:360px;left:-120px;top:-120px;background:#FFE27A"></div>
+  <div class="blob" style="width:520px;height:420px;right:-160px;bottom:-160px;background:#FFB39E"></div>
+  <div class="head">
+    <h2>One click. <em>Copied.</em></h2>
+    <p>Click the toolbar button on any Gmail, Drive or Docs page, then paste the link anywhere.</p>
+  </div>
+  <div class="win" data-safari data-host="docs.google.com" data-fav="#3B78E7" data-hot
+       data-tabs="#3B78E7|Deeper Link 0.3 launch checklist – Docs;#EA4335|Deeper Link 0.3 is ready to ship – Mail;#1E8E3E|Launch assets – Drive">
+    <div class="page">
+      <div class="docs">
+        <div class="dtop">
+          <div class="dicon"></div>
+          <div><div class="dtitle">Deeper Link 0.3 launch checklist</div><div class="dmenu"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Help</span></div></div>
+          <div class="share"><svg class="i" style="width:16px;height:16px"><use href="#lock"/></svg>Share</div>
+          <div class="me" style="margin-left:14px">A</div>
+        </div>
+        <div class="dtools"></div>
+        <div class="sheet">
+          <h3>Deeper Link 0.3: now on Safari</h3>
+          <p>Everything between "works on my Mac" and "on the Mac App Store".</p>
+          <h4>Safari port</h4>
+          <div class="todo done">Copy to the clipboard without an offscreen document</div>
+          <div class="todo done">Right-click menus survive a Safari restart</div>
+          <div class="todo done">Describe it in 112 characters or fewer</div>
+          <h4>Launch</h4>
+          <div class="todo done">Name the account by email, never by sign-in order</div>
+          <div class="todo">Take a screenshot of this checklist</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="callout pop" style="right:140px;top:298px">
+    <div class="k"><svg class="i" style="width:15px;height:15px;stroke-width:2.6"><use href="#check"/></svg>Copied</div>
+    <div class="url">docs.google.com/document/d/1DocId…/edit<mark>?authuser=alice@example.com</mark></div>
+  </div>
+</section>
+
+<!-- ============ 4: private by design ============ -->
+<section id="s4">
+  <div class="blob" style="width:560px;height:380px;right:-140px;top:-140px;background:#FFE27A"></div>
+  <div class="blob" style="width:520px;height:420px;left:-180px;bottom:-180px;background:#FFB39E"></div>
+  <div class="head">
+    <h2>Private by design</h2>
+    <p>No account, no setup, nothing to configure.</p>
+  </div>
+  <div class="hero"><img src="../../../assets/icon.svg"></div>
+  <div class="tiles">
+    <div class="tile"><div class="ic" style="background:#FFF3C4;color:#9A6B00"><svg class="i"><use href="#lock"/></svg></div>
+      <h5>Stays on your Mac</h5><p>Everything happens in Safari. Nothing is sent to the developer or anyone else.</p></div>
+    <div class="tile"><div class="ic" style="background:#FFE3DA;color:#C41F00"><svg class="i"><use href="#nocloud"/></svg></div>
+      <h5>Nothing stored</h5><p>No history, no cache, no analytics. It runs only when you click it.</p></div>
+    <div class="tile"><div class="ic" style="background:#E7F0FF;color:#1B5BD1"><svg class="i"><use href="#spark"/></svg></div>
+      <h5>Finds your account</h5><p>Reads the email from the page you're on. No lookup table to keep up to date.</p></div>
+    <div class="tile"><div class="ic" style="background:#E3F5E8;color:#1E7B34"><svg class="i"><use href="#people"/></svg></div>
+      <h5>Every account</h5><p>Personal and Workspace accounts, including ones without Gmail.</p></div>
+  </div>
+</section>
+
+<script>
+  document.body.dataset.shot = location.hash.slice(1) || "1";
+  // Fill each Safari window from the shared template: address, favicon colour, tabs ("colour|title;…", first is open).
+  for (const win of document.querySelectorAll("[data-safari]")) {
+    const chrome = document.getElementById("safari").content.cloneNode(true);
+    chrome.querySelector("[data-host]").textContent = win.dataset.host;
+    chrome.querySelector("[data-fav]").style.background = win.dataset.fav;
+    if ("hot" in win.dataset) chrome.querySelector(".extb").classList.add("hot");
+    chrome.querySelector(".tabsr").innerHTML = win.dataset.tabs.split(";")
+      .map((tab, i) => { const [colour, title] = tab.split("|");
+        return `<div class="tb${i ? "" : " on"}"><i class="fav" style="background:${colour}"></i><span>${title}</span></div>`; }).join("");
+    win.prepend(chrome);
+  }
+</script>

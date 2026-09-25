@@ -10,8 +10,8 @@ Copy-paste answers for each tab of the developer dashboard. Upload: `make packag
 
 **Name** (from the manifest): Deeper Link
 
-**Summary** (from the manifest `description`, max 132 chars):
-Copy Gmail, Drive and Docs links that always open the right account, whatever the sign-in order (?authuser=you@gmail.com).
+**Summary** (from the manifest `description`, max 132 chars; Safari allows 112):
+Copy Gmail, Drive and Docs links that always open the right account, whatever the sign-in order.
 
 **Description:**
 

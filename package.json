@@ -1,12 +1,12 @@
 {
   "name": "deeper-link",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Turn fragile, login-order-dependent links (e.g. Gmail /u/0/) into stable ones.",
   "type": "module",
   "packageManager": "pnpm@12.6.0",
   "scripts": {
-    "build:chrome": "node ts/chrome-extension/build.mjs",
+    "build": "node ts/chrome-extension/build.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

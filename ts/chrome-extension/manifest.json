@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Deeper Link",
-  "description": "Copy Gmail, Drive and Docs links that always open the right account, whatever the sign-in order (?authuser=you@gmail.com).",
+  "description": "Copy Gmail, Drive and Docs links that always open the right account, whatever the sign-in order.",
   "minimum_chrome_version": "116",
   "permissions": ["clipboardWrite", "contextMenus", "offscreen", "scripting"],
   "host_permissions": ["https://mail.google.com/*", "https://drive.google.com/*", "https://docs.google.com/*"],

@@ -28,11 +28,15 @@ This needs pnpm ≥ 12 (10.x deletes the link's target) and `hoist: false` in `p
 ln -s ~/somewhere/outside/dropbox/node_modules node_modules
 make install
 make check          # typecheck + tests
-make build          # → dist/chrome-extension/
+make build          # → dist/chrome-extension/ and dist/safari-extension/
 make package        # → dist/deeper-link-chrome-<version>.zip for the Web Store (version from package.json)
+make safari-app     # → an unsigned macOS app with the Safari extension, opened for local testing (needs Xcode)
+make safari-archive # → a signed Mac App Store archive (version from package.json; SAFARI_BUILD=n to re-upload one)
+make safari-upload  # → uploads that archive to App Store Connect, for TestFlight and review
 ```
 
 Then in Chrome: `chrome://extensions` → Developer mode → *Load unpacked* → `dist/chrome-extension`.
+In Safari: Settings → Advanced → *Show features for web developers*, then Settings → Developer → *Allow unsigned extensions*, run `make safari-app`, and enable Deeper Link in Settings → Extensions.
 
 `make help` lists all targets.
 
@@ -45,13 +49,15 @@ Makefile, package.json, tsconfig.json   # (later: pyproject.toml, Cargo.toml)
 spec/                  language-neutral rules + shared test fixtures
 assets/                logo sources for every platform: icon.svg + pixel-grid icon-16.svg (`make images` renders the PNGs and mark.svg)
 ts/core/               platform-free TypeScript: Service interface, registry, services/
-ts/chrome-extension/   Chrome MV3 glue only (toolbar, context menu, clipboard)
+ts/chrome-extension/   browser glue for Chrome and Safari (toolbar, context menu, clipboard); build.mjs derives the Safari manifest,
+                       safari-project.sh generates the Safari app's Xcode project
 store/chrome/          Chrome Web Store listing text (listing.md), images, and screenshot sources
+store/safari/          Mac App Store listing text (listing.md), app icon and screenshots
 PRIVACY.md             privacy policy (linked from the store)
 ```
 
 ### Adding things
 
 - **A service** (e.g. Google Calendar): write `spec/<service>.md` + `spec/fixtures/<service>.json`, implement `Service` in `ts/core/src/services/<service>.ts`, add it to `services` in `ts/core/src/registry.ts` and its fixtures to `ts/core/test/fixtures.test.ts`. Google services should resolve accounts through `services/google-account.ts`.
-- **A platform** (e.g. Safari): a new `ts/<platform>/` that calls `deepen()` from `@deeper-link/core` and supplies a `ResolveContext` (a credentialed `fetch`, plus the page title when available). Add a `build-<platform>` Make target.
+- **A platform** (e.g. a native app): a new `ts/<platform>/` that calls `deepen()` from `@deeper-link/core` and supplies a `ResolveContext` (a credentialed `fetch`, plus the page title when available). Add a `build-<platform>` Make target.
 - **A language** (e.g. Python, Rust): a `python/` or `rust/` source dir, its manifest at the root, Make targets hooked into `build`/`test`, and tests that run `spec/fixtures/*.json`.

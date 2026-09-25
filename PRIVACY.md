@@ -1,6 +1,8 @@
 # Privacy Policy — Deeper Link
 
-_Effective: 2026-09-24 (updated for version 0.2.0: Google Drive and Docs support)_
+_Effective: 2026-09-25 (updated for Safari support)_
+
+This policy covers Deeper Link for Chrome and for Safari; both behave the same except where noted.
 
 Deeper Link turns Gmail, Google Drive and Google Docs links that name an account by its sign-in order (such as `https://mail.google.com/mail/u/1/#inbox/…` or `https://docs.google.com/document/u/1/d/…`) into links that name it by email (`?authuser=you@gmail.com`), so they keep opening the right account regardless of sign-in order.
 
@@ -22,15 +24,16 @@ That's all. It only runs when you click the extension.
 - It does **not** store anything: no history, no cache, no settings, no cookies of its own.
 - It does **not** include analytics, tracking, ads, or remote code.
 - It does **not** read the contents of your emails or documents.
+- On Safari, the extension ships inside a small macOS app whose only job is to show how to enable the extension. The app collects nothing and makes no network requests.
 
 ## Permissions
 
 | Permission | Used for |
 |---|---|
-| Access to `mail.google.com`, `drive.google.com`, `docs.google.com` | Reading those tabs' URLs, titles and account-button labels, and Gmail's account feed, as described above |
+| Access to `mail.google.com`, `drive.google.com`, `docs.google.com` | Reading those tabs' URLs, titles and account-button labels, and Gmail's account feed, as described above. In Safari, you grant this per site in Safari's settings |
 | Scripting | Reading the account button's label on those Google pages |
 | Clipboard write | Copying the link you asked for |
-| Offscreen document | Performing the clipboard write (Chrome requires a document for it) |
+| Offscreen document (Chrome only) | Performing the clipboard write (Chrome requires a document for it; Safari's extension does it from its own background page) |
 | Context menus | The right-click "Copy Deeper Link" items |
 
 ## Changes and contact
